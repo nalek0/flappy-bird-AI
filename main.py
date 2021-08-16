@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 
 # Individual constants:
 INPUTS = 2
-HIDDEN = [2]
+HIDDEN = [3]
 OUTPUTS = 1
 MUTATION_PROB = 0.2
 CROSSOVER_PROB = 0.5
@@ -23,40 +23,22 @@ WINDOW_HEIGHT = 600
 FPS = 30
 DEFAULT_X = 0
 DEFAULT_Y = WINDOW_HEIGHT / 2
-DEFAULT_SPEEDX = 200
+DEFAULT_SPEEDX = 400
 DEFAULT_SPEEDY = 0
-GRAVITY = 1000
-JUMP_FORCE = -400
+GRAVITY = 1600
+JUMP_FORCE = -600
 BIRD_WIDTH = 40
 BIRD_HEIGHT = 30
 WALL_BETWEEN = 150
 WALL_WIDTH = 50
 WALL_MIN_Y = WALL_BETWEEN
 WALL_MAX_Y = WINDOW_HEIGHT - WALL_BETWEEN
+CAMERA_DELTA_X = 100
+ONLINE = False
 
 
 def random_between(min_: float, max_: float):
     return min_ + (max_ - min_) * random.random()
-
-
-class Individual:
-    score: float = 0
-
-    def __init__(self, genome = None):
-        if genome is None:
-            self.genome = NeuralNet(INPUTS, OUTPUTS, HIDDEN).json()['weights']
-        else:
-            self.genome = genome
-
-    def mutate(self):
-        for i in range(len(self.genome)):
-            if random.random() < MUTATION_PROB:
-                self.genome[i] += random.random() * 2 * MUTATION_MOVE_RANGE - MUTATION_MOVE_RANGE
-
-    def crossover(self, other):
-        for i in range(len(self.genome)):
-            if random.random() < CROSSOVER_PROB:
-                self.genome[i], other.genome[i] = other.genome[i], self.genome[i]
 
 
 class Camera:
@@ -64,7 +46,7 @@ class Camera:
     y: float = 0
 
     def sync(self, obj):
-        self.x = obj.x - 100
+        self.x = obj.x - CAMERA_DELTA_X
 
     def get_x(self, x: float):
         return x - self.x
@@ -118,7 +100,7 @@ class Wall:
         self.bottom_hit_box.draw('green')
 
 
-class Bird(Individual):
+class Bird:
     dead = False
     x = DEFAULT_X
     y = DEFAULT_Y
@@ -126,6 +108,24 @@ class Bird(Individual):
     speedY = DEFAULT_SPEEDY
     width = BIRD_WIDTH
     height = BIRD_HEIGHT
+
+    score: float = 0
+
+    def __init__(self, genome = None):
+        if genome is None:
+            self.genome = NeuralNet(INPUTS, OUTPUTS, HIDDEN).json()['weights']
+        else:
+            self.genome = genome
+
+    def mutate(self):
+        for i in range(len(self.genome)):
+            if random.random() < MUTATION_PROB:
+                self.genome[i] += random.random() * 2 * MUTATION_MOVE_RANGE - MUTATION_MOVE_RANGE
+
+    def crossover(self, other):
+        for i in range(len(self.genome)):
+            if random.random() < CROSSOVER_PROB:
+                self.genome[i], other.genome[i] = other.genome[i], self.genome[i]
 
     @property
     def hit_box(self):
@@ -240,19 +240,20 @@ class Generation:
         self.population = new_population
         self.walls = []
 
-    def emulate_life(self):
-        # random.seed(SEED)
+    def simulate_life(self):
         timer = time.time()
         while len(self._alive) > 0:
             canvas.delete('all')
 
             self._update_walls()
-            camera.sync(self.population[0])
 
             deltaTime = time.time() - timer
             timer += deltaTime
             for bird in self.population:
-                bird.move(1 / FPS)
+                if ONLINE:
+                    bird.move(deltaTime)
+                else:
+                    bird.move(1 / FPS)
 
             for bird in self.population:
                 for wall in self.walls:
@@ -265,10 +266,12 @@ class Generation:
             for bird in self.population:
                 bird.jump(nearest_wall)
 
+            camera.sync(self.population[0])
             for bird in self._alive:
                 bird.draw()
             for wall in self.walls:
                 wall.draw()
+
             canvas.create_text(150, 25, text=f'Generation: {generation_number}', font='Calibri 25')
             canvas.create_text(150, 50, text=f'Alive: {len(self._alive)}', font='Calibri 25')
             canvas.create_text(150, 75, text=f'Score: {int(self.get_best_score())}', font='Calibri 25')
@@ -277,7 +280,6 @@ class Generation:
 
     def get_best_score(self):
         return self._best_bird.score
-
 
 
 if __name__ == "__main__":
@@ -289,12 +291,10 @@ if __name__ == "__main__":
 
     generation = Generation()
     generation_number = 1
-    scores = []
     top_score = 0
     while generation_number <= MAX_GENERATIONS:
         print("Generation", generation_number)
-        generation.emulate_life()
-        scores.append(generation.get_best_score())
+        generation.simulate_life()
         top_score = max(top_score, generation.get_best_score())
         generation.change_population()
         generation_number += 1
