@@ -16,7 +16,6 @@ POPULATION_SIZE = 50
 MAX_GENERATIONS = 100
 TOURNAMENT_SIZE = 10
 HALL_OF_FAME_SIZE = 5
-SEED = 123
 # Game constants:
 WINDOW_WIDTH = 900
 WINDOW_HEIGHT = 600
@@ -35,10 +34,6 @@ WALL_MIN_Y = WALL_BETWEEN
 WALL_MAX_Y = WINDOW_HEIGHT - WALL_BETWEEN
 CAMERA_DELTA_X = 100
 ONLINE = False
-
-
-def random_between(min_: float, max_: float):
-    return min_ + (max_ - min_) * random.random()
 
 
 class Camera:
@@ -215,7 +210,7 @@ class Generation:
             else:
                 x = self.walls[-1].x + WINDOW_HEIGHT
 
-            self.walls.append(Wall(x, random_between(WALL_MIN_Y, WALL_MAX_Y)))
+            self.walls.append(Wall(x, WALL_MIN_Y + random.random() * (WALL_MAX_Y - WALL_MIN_Y)))
         if self.walls[0].x < self._alive[0].x - WINDOW_WIDTH:
             self.walls = self.walls[1:]
 
