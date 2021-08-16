@@ -1,25 +1,29 @@
+import math
 import time
-import tkinter
 import random
+import tkinter
 from NeuralNet import NeuralNet
 from PIL import Image, ImageTk
 
 
 # Individual constants:
+# Bird neural net data:
 INPUTS = 2
 HIDDEN = [3]
 OUTPUTS = 1
+# Genetic algorithm constants:
 MUTATION_PROB = 0.2
 CROSSOVER_PROB = 0.5
 MUTATION_MOVE_RANGE = 2
 POPULATION_SIZE = 50
-MAX_GENERATIONS = 100
+MAX_GENERATIONS = math.inf
 TOURNAMENT_SIZE = 10
 HALL_OF_FAME_SIZE = 5
 # Game constants:
 WINDOW_WIDTH = 900
 WINDOW_HEIGHT = 600
 FPS = 30
+# Bird constants:
 DEFAULT_X = 0
 DEFAULT_Y = WINDOW_HEIGHT / 2
 DEFAULT_SPEEDX = 400
@@ -28,11 +32,16 @@ GRAVITY = 1600
 JUMP_FORCE = -600
 BIRD_WIDTH = 40
 BIRD_HEIGHT = 30
+# Walls constants:
 WALL_BETWEEN = 150
 WALL_WIDTH = 50
 WALL_MIN_Y = WALL_BETWEEN
 WALL_MAX_Y = WINDOW_HEIGHT - WALL_BETWEEN
+# Camera constant:
 CAMERA_DELTA_X = 100
+# Constant, how fast show evolution
+# ONLINE = True - birds learns online
+# ONLINE = False - birds learns with maximum speed
 ONLINE = False
 
 
