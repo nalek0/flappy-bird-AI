@@ -1,10 +1,10 @@
 import math
-import time
 import random
+import time
 import tkinter
-from NeuralNet import NeuralNet
-from PIL import Image, ImageTk
+from typing import List
 
+from NeuralNet import NeuralNet
 
 # Individual constants:
 # Bird neural net data:
@@ -144,11 +144,11 @@ class Bird:
             'weights': self.genome
         })
 
-    def move(self, deltaTime):
-        self.speedY += GRAVITY * deltaTime
+    def move(self, delta_time):
+        self.speedY += GRAVITY * delta_time
 
-        self.x += self.speedX * deltaTime
-        self.y += self.speedY * deltaTime
+        self.x += self.speedX * delta_time
+        self.y += self.speedY * delta_time
 
         if self.y < 0 or self.y > WINDOW_HEIGHT:
             self.die()
@@ -182,7 +182,7 @@ class Bird:
 
 
 class Generation:
-    walls: list[Wall] = []
+    walls: List[Wall] = []
 
     def __init__(self):
         self.population = []
@@ -251,11 +251,11 @@ class Generation:
 
             self._update_walls()
 
-            deltaTime = time.time() - timer
-            timer += deltaTime
+            delta_time = time.time() - timer
+            timer += delta_time
             for bird in self.population:
                 if ONLINE:
-                    bird.move(deltaTime)
+                    bird.move(delta_time)
                 else:
                     bird.move(1 / FPS)
 

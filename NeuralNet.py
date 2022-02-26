@@ -1,10 +1,11 @@
 import math
 import random
+from typing import List
 
 
 class Neuron:
     inputs: int
-    weights: list[float]
+    weights: List[float]
     b: float
 
     @staticmethod
@@ -22,7 +23,7 @@ class Neuron:
             self.weights.append(random.random() * 20 - 10)
         self.b = random.random() * 20 - 10
 
-    def push(self, input_data: list[float]) -> float:
+    def push(self, input_data: List[float]) -> float:
         return Neuron.sigmoid(
             sum(
                 map(
@@ -33,7 +34,7 @@ class Neuron:
         )
     
     @staticmethod
-    def from_array(inputs: int, arr: list[float]):
+    def from_array(inputs: int, arr: List[float]):
         neuron = Neuron(inputs)
         neuron.weights = arr[:-1]
         neuron.b = arr[-1]
@@ -43,10 +44,10 @@ class Neuron:
 class NeuralNet:
     inputs: int
     outputs: int
-    hidden: list[int]
-    layers: list[list[Neuron]]
+    hidden: List[int]
+    layers: List[List[Neuron]]
     
-    def __init__(self, inputs: int, outputs: int, hidden: list[int]):
+    def __init__(self, inputs: int, outputs: int, hidden: List[int]):
         self.inputs = inputs
         self.outputs = outputs
         self.hidden = hidden
@@ -66,7 +67,7 @@ class NeuralNet:
             output_layer.append(Neuron(current_inputs))
         self.layers.append(output_layer)
     
-    def push(self, input_data: list[float]) -> list[float]:
+    def push(self, input_data: List[float]) -> List[float]:
         current_data = input_data[:]
         for layer in self.layers:
             current_data = list(
